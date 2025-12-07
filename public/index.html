@@ -307,36 +307,7 @@ window.addEventListener("message", (event) => {
 });
 </script> -->
 
-<audio id="sndX_4938" preload="auto" loop muted>
-  <source src="02sghsjp2.mp4" type="audio/mp4">
-</audio>
 
-<script>
-const audio = document.getElementById('sndX_4938');
-
-// 1. Autoplay muted immediately (always allowed)
-window.addEventListener('load', () => {
-  audio.play().then(() => {
-    // 2. Try to unmute after tiny delay
-    setTimeout(() => {
-      audio.muted = false;
-    }, 300);
-  }).catch(err => {
-    console.log('Autoplay failed:', err);
-  });
-});
-
-// 3. Guaranteed fallback after first user interaction
-const unlock = () => {
-  audio.muted = false;
-  audio.play();
-  document.removeEventListener('click', unlock);
-  document.removeEventListener('touchstart', unlock);
-};
-
-document.addEventListener('click', unlock);
-document.addEventListener('touchstart', unlock);
-</script>
 	<script>
 function fire() {
   window.parent.postMessage({ action: "request-fullscreen" }, "*");
