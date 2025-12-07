@@ -10,9 +10,8 @@ app.disable("x-powered-by");
 // Enable gzip compression
 app.use(compression());
 
-// CORS (keep lightweight)
+// Lightweight CORS
 app.use(cors({ origin: "*" }));
-
 app.use(express.json({ limit: "10kb" }));
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,7 +21,7 @@ const __dirname = path.dirname(__filename);
    FAST STATIC DELIVERY
 ============================= */
 app.use(express.static(path.join(__dirname, "public"), {
-  maxAge: "1y",          // strong caching
+  maxAge: "1y",
   etag: true,
   immutable: true,
   lastModified: true
@@ -38,12 +37,12 @@ app.use((req, res, next) => {
 });
 
 /* =============================
-   FAST BOT BLOCK
+   BOT BLOCKING
 ============================= */
 const blockedBots = /(bot|crawl|spider|slurp|bing|ahrefs|semrush|facebookexternalhit|python-requests|curl|wget|java|headless|node)/i;
 
 app.use((req, res, next) => {
-  const ua = req.headers["user-agent"] || "";
+  const ua = (req.headers["user-agent"] || "").toLowerCase();
   if (blockedBots.test(ua)) {
     return res.status(403).send("Bots not allowed");
   }
@@ -51,21 +50,7 @@ app.use((req, res, next) => {
 });
 
 /* =============================
-   COUNTRY BLOCK (FASTER)
-============================= */
-const ALLOWED_COUNTRIES = new Set(["JP"]);
-
-app.use((req, res, next) => {
-  const country = (req.headers["cf-ipcountry"] || "UNKNOWN").toUpperCase();
-  if (country === "UNKNOWN") return next();
-  if (!ALLOWED_COUNTRIES.has(country)) {
-    return res.status(403).send("Access blocked by country");
-  }
-  next();
-});
-
-/* =============================
-   ACCESS CONTROL (FAST)
+   ACCESS CONTROL
 ============================= */
 const ALLOWED_ORIGIN = "https://greencrafter.space";
 
@@ -88,8 +73,8 @@ app.use((req, res, next) => {
 
   if (p === "/frontend-loader") return next();
 
-  const referer = req.headers.referer || "";
-  if (referer.startsWith(ALLOWED_ORIGIN)) return next();
+  const referer = (req.headers.referer || "").toLowerCase();
+  if (referer.startsWith(ALLOWED_ORIGIN.toLowerCase())) return next();
 
   if (req.query.loader === "true") {
     return res.status(403).send("Direct loader access blocked");
