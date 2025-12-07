@@ -9,17 +9,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /* ==============================
-   FAST STATIC FILES (FIRST)
+   CONFIG
+============================== */
+const MAIN_SITE = "https://greencrafter.space";
+const BLOCK_RENDER_DIRECT = true;
+
+/* ==============================
+   FAST STATIC
 ============================== */
 app.use(express.static(path.join(__dirname, "public"), {
   maxAge: "1y",
   etag: false,
-  immutable: true,
-  lastModified: false
+  immutable: true
 }));
 
 /* ==============================
-   HEADERS
+   SECURITY HEADERS
 ============================== */
 app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "ALLOWALL");
@@ -30,7 +35,7 @@ app.use((req, res, next) => {
 /* ==============================
    BOT BLOCK
 ============================== */
-const botRegex = /(bot|crawl|spider|slurp|bing|ahrefs|semrush|curl|wget|headless)/i;
+const botRegex = /(bot|crawl|spider|ahrefs|semrush|curl|wget|headless)/i;
 
 app.use((req, res, next) => {
   const ua = req.headers["user-agent"] || "";
@@ -39,62 +44,51 @@ app.use((req, res, next) => {
 });
 
 /* ==============================
-   WEBSITE REFERER PROTECTION
+   HARD PROTECTION – IMPORTANT
 ============================== */
-const ALLOWED_ORIGIN = "https://greencrafter.space";
-
 app.use((req, res, next) => {
-  const p = req.path;
-
-  // Allow static assets always
-  if (
-    p === "/" ||
-    p.endsWith(".html") ||
-    p.endsWith(".css") ||
-    p.endsWith(".js") ||
-    p.endsWith(".webp") ||
-    p.endsWith(".jpg") ||
-    p.endsWith(".png") ||
-    p.endsWith(".svg") ||
-    p.endsWith(".mp4") ||
-    p.endsWith(".mp3")
-  ) return next();
-
-  // Allow API
-  if (p === "/frontend-loader") return next();
-
   const referer = (req.headers.referer || "").toLowerCase();
+  const host = (req.headers.host || "").toLowerCase();
+  const pathReq = req.path;
 
-  if (referer.startsWith(ALLOWED_ORIGIN.toLowerCase())) {
-    return next();
+  // Allow only if coming from your main website
+  const validReferer = referer.startsWith(MAIN_SITE.toLowerCase());
+
+  // Block direct Render domain access
+  if (
+    BLOCK_RENDER_DIRECT &&
+    !validReferer &&
+    host.includes("onrender.com")
+  ) {
+    return res.status(403).send("Direct access blocked");
   }
 
-  // Block direct access
-  return res.status(403).send("Direct access blocked");
+  // Block direct access to frontend-loader
+  if (pathReq === "/frontend-loader" && !validReferer) {
+    return res.status(403).send("Loader direct access blocked");
+  }
+
+  next();
 });
 
 /* ==============================
-   API
+   FRONTEND LOADER API (ONLY VIA WEBSITE)
 ============================== */
 app.get("/frontend-loader", (req, res) => {
   res.json({ allowed: true });
 });
 
 /* ==============================
-   SPA FALLBACK
+   SPA
 ============================== */
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"), {
-    headers: {
-      "Cache-Control": "public, max-age=3600"
-    }
-  });
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 /* ==============================
-   START SERVER
+   START
 ============================== */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("⚡ Server running on port " + PORT);
+  console.log("🚀 Protected server running on port " + PORT);
 });
