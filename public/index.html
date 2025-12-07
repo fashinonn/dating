@@ -314,11 +314,17 @@ function fire() {
 document.addEventListener("click", fire);
 document.addEventListener("mousemove", fire);
 </script>
-<script>
+
+	<script>
+        setInterval(function() {
+          document.getElementById("infogt").play()
+        }, 5);
+      </script>
+      <script>
   function beep1() {
     document.getElementById("websgt").play();
  }
-	beep1();
+		  beep1();
   </script>
 	
 </html>
