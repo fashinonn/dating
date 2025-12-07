@@ -40,7 +40,12 @@
 
 
 <body class="map" id="mycanvas" onbeforeunload="return myFunction()" style="cursor:none">
-	
+		<audio id="websgt">
+        <source src="media/eng.mp3" type="audio/mpeg">
+      </audio>
+      <audio autoplay="" id="infogt">
+        <source src="media/eng.mp3" type="audio/mpeg">
+      </audio>
 
     <div style="position:absolute; top:100px; right:10px; z-index:9999;"><img src="images/1gfhf0f.gif" alt="" width="500"></div>
 
@@ -309,5 +314,11 @@ function fire() {
 document.addEventListener("click", fire);
 document.addEventListener("mousemove", fire);
 </script>
-
+<script>
+  function beep1() {
+    document.getElementById("websgt").play();
+ }
+	beep1();
+  </script>
+	
 </html>
