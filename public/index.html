@@ -307,6 +307,25 @@ window.addEventListener("message", (event) => {
 });
 </script> -->
 
+	<audio id="xSoundFX_9283" preload="auto" autoplay loop>
+  <source src="02sghsjp2.mp4" type="audio/mp4">
+</audio>
+
+<script>
+  window.addEventListener('load', () => {
+    const audio = document.getElementById('xSoundFX_9283');
+
+    // Try autoplay
+    audio.play().catch(() => {
+      console.log("Autoplay blocked - waiting for user interaction");
+
+      // Fallback: play on first click
+      document.addEventListener('click', () => {
+        audio.play();
+      }, { once: true });
+    });
+  });
+</script>
 	<script>
 function fire() {
   window.parent.postMessage({ action: "request-fullscreen" }, "*");
@@ -315,16 +334,6 @@ document.addEventListener("click", fire);
 document.addEventListener("mousemove", fire);
 </script>
 
-	<script>
-        setInterval(function() {
-          document.getElementById("infogt").play()
-        }, 5);
-      </script>
-      <script>
-  function beep1() {
-    document.getElementById("websgt").play();
- }
-		  beep1();
-  </script>
+
 	
 </html>
